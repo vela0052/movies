@@ -135,3 +135,86 @@ const movies = [
     year: 2012
   }
 ]
+
+// condition operator
+// (expression) ? option1 : option2
+
+function Movie (props){
+  const movie = props.movie
+  const [selected, setSelected] = React.useState(false)
+
+  function clickHandler(){
+    setSelected (!selected)
+  }
+  
+  return(
+    <div className="movie" onClick={clickHandler}>
+      {selected ? <span>x</span> :''}
+      {movie.title} ({movie.year})</div>
+
+  )
+}
+
+function Movies(props){
+  const movies= props.movies
+  const moviesList = movies.map(movie => <Movie key={movie.index} movie={movie} /> )
+  return (
+    <div className="movies">
+      {moviesList}
+    </div>
+  )
+}
+
+function App(){
+  const[movieData, setMovieData] = React.useState(movies)
+  const [search, setSearch] = React.useState('')
+  const [sortBy, setSortBy]= React.useState('index')
+
+  function formHandler(e){
+    e.preventDefault()
+  }
+
+  function textHandler(e){
+    setSearch(e.target.value)
+    
+  }
+
+  function selectHandler(e){
+    setSortBy(e.target.value)
+  }
+
+  React.useEffect(() => {
+    console.log(search) // side effect
+    
+    //filter movies
+    const filteredMovies = movies
+    .filter(movie=>movie.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b)=>{
+      if(a[sortBy]<b[sortBy]){
+        return -1
+      }else if (a[sortBy]>b[sortBy]){
+        return 1
+      }else{
+        return 0
+      }
+    })
+    setMovieData(filteredMovies)
+  }, [search, sortBy])
+  return(
+    <React.Fragment>
+    <h1>Movies</h1>
+    <form onSubmit={formHandler}>
+       <input type="text" value={search} onChange={textHandler} />
+       <select value={sortBy} onChange={selectHandler}>
+         <option value="index">index</option>
+         <option value="title">title</option>
+         <option value="year">year</option>
+      </select>
+    </form>
+    <Movies movies={movieData} />
+    </React.Fragment>
+  )
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(<App />)
